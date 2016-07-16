@@ -8,12 +8,15 @@ use Slim\Views\PhpRenderer;
 use Wambo\Catalog\CachedProductRepository;
 use Wambo\Catalog\Mapper\ContentMapper;
 use Wambo\Catalog\Mapper\ProductMapper;
+use Wambo\Catalog\Model\Product;
 use Wambo\Catalog\ProductRepository;
+use Wambo\Catalog\ProductRepositoryInterface;
 use Wambo\Core\App;
 use Wambo\Core\Module\JSONModuleStorage;
 use Wambo\Core\Module\ModuleBootstrapInterface;
 use Wambo\Frontend\ViewModel\Catalog;
 use Stash\Pool;
+use Wambo\Frontend\ViewModel\ProductDetails;
 
 /**
  * Class Frontend integrates this module into Wambo application.
@@ -26,6 +29,79 @@ class Frontend implements ModuleBootstrapInterface
      * @param App $app
      */
     public function __construct(App $app)
+    {
+        // Get container
+        $container = $app->getContainer();
+        $container["repository"] = $this->getProductRepository();
+
+        // Register component on container
+        $container['view'] = function ($container) {
+            $path = realpath(dirname(__FILE__) . '/../view') . '/';
+            return new PhpRenderer($path);
+        };
+
+        // overview
+        $app->get('/', function ($request, $response, $args) {
+
+            /** @var ProductRepositoryInterface $productRepository */
+            $productRepository = $this->repository;
+
+            // get the products from the cached repository
+            $products = $productRepository->getProducts();
+
+            // create a viewmodel
+            $viewModel = new Catalog();
+            $viewModel->Products = $products;
+
+            $container['model'] = $viewModel;
+
+            // render
+            return $this->view->render($response, 'catalog.php', [
+                'name' => $args['name'],
+                "viewModel" => $viewModel
+            ]);
+        });
+
+        // product details
+        $app->get('/product/{slug}', function ($request, $response, $args) {
+
+            /** @var string $slug */
+            $slug = $request->getAttribute('slug');
+
+            /** @var ProductRepositoryInterface $productRepository */
+            $productRepository = $this->repository;
+
+            // get the products from the cached repository
+            $product = null;
+            $products = $productRepository->getProducts();
+
+            foreach ($products as $p) {
+                /** @var Product $product */
+                if ($p->getSlug()->__toString() === $slug) {
+                    $product = $p;
+                    break;
+                }
+
+            }
+
+            // create a view model
+            $viewModel = new ProductDetails();
+            $viewModel->Title = $product->getTitle();
+            $viewModel->Product = $product;
+
+            return $this->view->render($response, 'product.php', [
+                'name' => $args['name'],
+                "viewModel" => $viewModel
+            ]);
+        });
+    }
+
+    /**
+     * Get a product repository instance
+     *
+     * @return ProductRepositoryInterface
+     */
+    private function getProductRepository()
     {
         // catalog storage
         $sampleCatalogFilename = "sample-catalog.json";
@@ -45,37 +121,6 @@ class Frontend implements ModuleBootstrapInterface
         // create a cached version of the product repository
         $cache = new Pool();
         $cachedProductRepository = new CachedProductRepository($cache, $productRepository);
-
-        // get the products from the cached repository
-        $products = $cachedProductRepository->getProducts();
-
-        $viewModel = new Catalog();
-        $viewModel->Products = $products;
-
-        // Get container
-        $container = $app->getContainer();
-
-        $container['model'] = $viewModel;
-
-        // Register component on container
-        $container['view'] = function ($container) {
-            $path = realpath(dirname(__FILE__) . '/../view') . '/';
-            return new PhpRenderer($path);
-        };
-
-        $app->get('/', function ($request, $response, $args) {
-            return $this->view->render($response, 'catalog.php', [
-                'name' => $args['name'],
-                "viewModel" => $this->model
-            ]);
-        });
-
-        $app->get('/product/{slug}', function ($request, $response, $args) {
-            $slug = $request->getAttribute('slug');
-            return $this->view->render($response, 'catalog.php', [
-                'name' => $args['name'],
-                "viewModel" => $this->model
-            ]);
-        });
+        return $cachedProductRepository;
     }
 }
