@@ -32,35 +32,16 @@ class Frontend implements ModuleBootstrapInterface
     {
         // Get container
         $container = $app->getContainer();
-        $container["repository"] = $this->getProductRepository();
+        $container["productRepository"] = $this->getProductRepository();
 
         // Register component on container
-        $container['view'] = function ($container) {
+        $container['renderer'] = function ($container) {
             $path = realpath(dirname(__FILE__) . '/../view') . '/';
             return new PhpRenderer($path);
         };
 
         // overview
-        $app->get('/', function ($request, $response, $args) {
-
-            /** @var ProductRepositoryInterface $productRepository */
-            $productRepository = $this->repository;
-
-            // get the products from the cached repository
-            $products = $productRepository->getProducts();
-
-            // create a viewmodel
-            $viewModel = new Catalog();
-            $viewModel->Products = $products;
-
-            $container['model'] = $viewModel;
-
-            // render
-            return $this->view->render($response, 'catalog.php', [
-                'name' => $args['name'],
-                "viewModel" => $viewModel
-            ]);
-        });
+        $app->get('/', 'Wambo\Frontend\Controller\CatalogController:overview');
 
         // product details
         $app->get('/product/{slug}', function ($request, $response, $args) {
