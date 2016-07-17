@@ -9,8 +9,8 @@ use Slim\Http\Response;
 use Slim\Views\PhpRenderer;
 use Wambo\Catalog\Model\Product;
 use Wambo\Catalog\ProductRepositoryInterface;
-use Wambo\Frontend\ViewModel\Catalog;
-use Wambo\Frontend\ViewModel\ProductDetails;
+use Wambo\Frontend\ViewModel\OverviewViewModel;
+use Wambo\Frontend\ViewModel\ProductViewModel;
 
 /**
  * Class CatalogController contains the frontend controller actions for browsing the product catalog.
@@ -25,18 +25,27 @@ class CatalogController
     /** @var PhpRenderer $renderer */
     private $renderer;
 
+    /** @var ErrorController $errorController */
+    private $errorController;
+
+    /**
+     * Creates a new instance of the CatalogController class.
+     *
+     * @param ContainerInterface $container The slim di container
+     */
     public function __construct(ContainerInterface $container)
     {
         $this->productRepository = $container->get('productRepository');
         $this->renderer = $container->get('renderer');
+        $this->errorController = $container->get('errorController');
     }
 
     /**
      * Render the catalog overview pages with all products on one page
      *
-     * @param Request  $request
-     * @param Response $response
-     * @param array    $args
+     * @param Request  $request  The request object
+     * @param Response $response The response object
+     * @param array    $args     The request arguments
      *
      * @return ResponseInterface
      */
@@ -46,10 +55,10 @@ class CatalogController
         $products = $this->productRepository->getProducts();
 
         // create a view model
-        $viewModel = new Catalog();
+        $viewModel = new OverviewViewModel();
         $viewModel->Products = $products;
 
-        return $this->renderer->render($response, 'catalog.php', [
+        return $this->renderer->render($response, 'overview.php', [
             'name' => $args['name'],
             "viewModel" => $viewModel
         ]);
@@ -58,20 +67,26 @@ class CatalogController
     /**
      * Render the product details page.
      *
-     * @param Request  $request
-     * @param Response $response
-     * @param array    $args
+     * @param Request  $request  The request object
+     * @param Response $response The response object
+     * @param array    $args     The request arguments
      *
      * @return ResponseInterface
      */
     public function productDetails(Request $request, Response $response, $args)
     {
+        // get the product that matches the given slug
         /** @var string $slug */
         $slug = $request->getAttribute('slug');
         $product = $this->getProductBySlug($slug);
 
+        // product not found
+        if (is_null($product)) {
+            return $this->errorController->error404($request, $response, $args);
+        }
+
         // create a view model
-        $viewModel = new ProductDetails();
+        $viewModel = new ProductViewModel();
         $viewModel->Title = $product->getTitle();
         $viewModel->Product = $product;
 

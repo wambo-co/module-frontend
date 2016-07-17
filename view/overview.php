@@ -1,5 +1,5 @@
 <?php
-/** @var $viewModel \Wambo\Frontend\ViewModel\Catalog */
+/** @var $viewModel \Wambo\Frontend\ViewModel\OverviewViewModel */
 $products = $viewModel->Products;
 ?>
 

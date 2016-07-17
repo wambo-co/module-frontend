@@ -8,18 +8,16 @@ use Slim\Views\PhpRenderer;
 use Wambo\Catalog\CachedProductRepository;
 use Wambo\Catalog\Mapper\ContentMapper;
 use Wambo\Catalog\Mapper\ProductMapper;
-use Wambo\Catalog\Model\Product;
 use Wambo\Catalog\ProductRepository;
 use Wambo\Catalog\ProductRepositoryInterface;
 use Wambo\Core\App;
 use Wambo\Core\Module\JSONModuleStorage;
 use Wambo\Core\Module\ModuleBootstrapInterface;
-use Wambo\Frontend\ViewModel\Catalog;
 use Stash\Pool;
-use Wambo\Frontend\ViewModel\ProductDetails;
+use Wambo\Frontend\Controller\ErrorController;
 
 /**
- * Class Frontend integrates this module into Wambo application.
+ * Class Frontend registers the frontend controller in the Wambo app.
  *
  * @package Wambo\Frontend
  */
@@ -32,13 +30,18 @@ class Frontend implements ModuleBootstrapInterface
     {
         // Get container
         $container = $app->getContainer();
-        $container["productRepository"] = $this->getProductRepository();
 
-        // Register component on container
-        $container['renderer'] = function ($container) {
+        // register: renderer
+        $container['renderer'] = function () {
             $path = realpath(dirname(__FILE__) . '/../view') . '/';
             return new PhpRenderer($path);
         };
+
+        // register: product repository
+        $container["productRepository"] = $this->getProductRepository();
+
+        // register: error controller
+        $container['errorController'] = new ErrorController($container);
 
         // overview
         $app->get('/', 'Wambo\Frontend\Controller\CatalogController:overview');
