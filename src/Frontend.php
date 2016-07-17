@@ -44,37 +44,7 @@ class Frontend implements ModuleBootstrapInterface
         $app->get('/', 'Wambo\Frontend\Controller\CatalogController:overview');
 
         // product details
-        $app->get('/product/{slug}', function ($request, $response, $args) {
-
-            /** @var string $slug */
-            $slug = $request->getAttribute('slug');
-
-            /** @var ProductRepositoryInterface $productRepository */
-            $productRepository = $this->repository;
-
-            // get the products from the cached repository
-            $product = null;
-            $products = $productRepository->getProducts();
-
-            foreach ($products as $p) {
-                /** @var Product $product */
-                if ($p->getSlug()->__toString() === $slug) {
-                    $product = $p;
-                    break;
-                }
-
-            }
-
-            // create a view model
-            $viewModel = new ProductDetails();
-            $viewModel->Title = $product->getTitle();
-            $viewModel->Product = $product;
-
-            return $this->view->render($response, 'product.php', [
-                'name' => $args['name'],
-                "viewModel" => $viewModel
-            ]);
-        });
+        $app->get('/product/{slug}', 'Wambo\Frontend\Controller\CatalogController:productDetails');
     }
 
     /**
