@@ -4,8 +4,7 @@ namespace Wambo\Frontend;
 
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
-use Slim\Views\Twig;
-use Slim\Views\TwigExtension;
+use Slim\Views\PhpRenderer;
 use Wambo\Catalog\CachedProductRepository;
 use Wambo\Catalog\Mapper\ContentMapper;
 use Wambo\Catalog\Mapper\ProductMapper;
@@ -33,25 +32,13 @@ class Frontend implements ModuleBootstrapInterface
     {
         // Get container
         $container = $app->getContainer();
-        $container['repository'] = $this->getProductRepository();
+        $container["repository"] = $this->getProductRepository();
 
-        // setup the view engine
-        $container['view'] = new Twig();
-
-        /** @var Twig $view */
-        $view = $app->view();
-
-        $viewTemplatesDirectory = realpath(dirname(__FILE__) . '/../view') . '/';
-        $view->setTemplatesDirectory($viewTemplatesDirectory);
-
-        $view->parserExtensions = array(
-            new TwigExtension(),
-        );
-
-        $view->parserOptions = array(
-            'debug' => true,
-            'cache' => dirname(__FILE__) . '/cache'
-        );
+        // Register component on container
+        $container['view'] = function ($container) {
+            $path = realpath(dirname(__FILE__) . '/../view') . '/';
+            return new PhpRenderer($path);
+        };
 
         // overview
         $app->get('/', function ($request, $response, $args) {
@@ -101,7 +88,6 @@ class Frontend implements ModuleBootstrapInterface
             $viewModel = new ProductDetails();
             $viewModel->Title = $product->getTitle();
             $viewModel->Product = $product;
-
 
             return $this->view->render($response, 'product.php', [
                 'name' => $args['name'],
