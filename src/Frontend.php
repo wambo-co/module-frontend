@@ -32,9 +32,20 @@ class Frontend implements ModuleBootstrapInterface
         $container = $app->getContainer();
 
         // register: renderer
-        $container['renderer'] = function () {
-            $path = realpath(dirname(__FILE__) . '/../view') . '/';
-            return new PhpRenderer($path);
+        $container['renderer'] = function ($c) {
+
+            $templatesDirectory = realpath(dirname(__FILE__) . '/../view');
+            $cacheDirectory = realpath(WAMBO_ROOT_DIR . DIRECTORY_SEPARATOR . "var" . DIRECTORY_SEPARATOR . "cache");
+
+            $view = new \Slim\Views\Twig($templatesDirectory, [
+                'cache' => $cacheDirectory
+            ]);
+
+            // Instantiate and add Slim specific extension
+            $basePath = rtrim(str_ireplace('index.php', '', $c['request']->getUri()->getBasePath()), '/');
+            $view->addExtension(new \Slim\Views\TwigExtension($c['router'], $basePath));
+
+            return $view;
         };
 
         // register: product repository
