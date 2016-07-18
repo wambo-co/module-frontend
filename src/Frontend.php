@@ -41,11 +41,11 @@ class Frontend implements ModuleBootstrapInterface
         $container["productRepository"] = $this->getProductRepository();
 
         // register: error controller
-        $errorContoller = new ErrorController($container);
-        $container['errorController'] = $errorContoller;
-        $container['notFoundHandler'] = function () use ($errorContoller) {
-            return function ($request, $response, $args) use ($errorContoller) {
-                return $errorContoller->error404($request, $response, $args);
+        $errorController = new ErrorController($container);
+        $container['errorController'] = $errorController;
+        $container['notFoundHandler'] = function () use ($errorController) {
+            return function ($request, $response, $args) use ($errorController) {
+                return $errorController->error404($request, $response, $args);
             };
         };
 
