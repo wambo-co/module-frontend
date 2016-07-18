@@ -41,7 +41,13 @@ class Frontend implements ModuleBootstrapInterface
         $container["productRepository"] = $this->getProductRepository();
 
         // register: error controller
-        $container['errorController'] = new ErrorController($container);
+        $errorContoller = new ErrorController($container);
+        $container['errorController'] = $errorContoller;
+        $container['notFoundHandler'] = function () use ($errorContoller) {
+            return function ($request, $response, $args) use ($errorContoller) {
+                return $errorContoller->error404($request, $response, $args);
+            };
+        };
 
         // overview
         $app->get('/', 'Wambo\Frontend\Controller\CatalogController:overview');
