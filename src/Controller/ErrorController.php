@@ -40,13 +40,8 @@ class ErrorController
      */
     public function error404(Request $request, Response $response, $args)
     {
-        // create a view model
-        $viewModel = new ErrorViewModel();
-        $viewModel->Title = "Page not found";
-
-        return $this->renderer->render($response->withStatus(404), 'error.php', [
-            'name' => $args['name'],
-            "viewModel" => $viewModel
+        return $this->renderer->render($response->withStatus(404), 'error.html', [
+            "title" => "Page not found"
         ]);
     }
 }

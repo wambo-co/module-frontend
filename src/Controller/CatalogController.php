@@ -54,13 +54,14 @@ class CatalogController
         // get the products from the cached repository
         $products = $this->productRepository->getProducts();
 
-        // create a view model
-        $viewModel = new OverviewViewModel();
-        $viewModel->Products = $products;
+        $productModels = [];
+        foreach($products as $product) {
+            $productModels[] = $this->getProductModel($product);
+        }
 
-        return $this->renderer->render($response, 'overview.php', [
-            'name' => $args['name'],
-            "viewModel" => $viewModel
+        return $this->renderer->render($response, 'overview.html', [
+            "title" => "Overview",
+            "products" => $products,
         ]);
     }
 
@@ -85,15 +86,20 @@ class CatalogController
             return $this->errorController->error404($request, $response, $args);
         }
 
-        // create a view model
-        $viewModel = new ProductViewModel();
-        $viewModel->Title = $product->getTitle();
-        $viewModel->Product = $product;
-
-        return $this->renderer->render($response, 'product.php', [
-            'name' => $args['name'],
-            "viewModel" => $viewModel
+        return $this->renderer->render($response, 'product.html', [
+            "title" => $product->getTitle(),
+            "product" => $this->getProductModel($product)
         ]);
+    }
+
+    private function getProductModel(Product $product): array {
+        return [
+            "sku" => $product->getSku(),
+            "title" => $product->getTitle(),
+            "slug" => $product->getSlug(),
+            "summary" => $product->getSummaryText(),
+            "description" => $product->getProductDescription(),
+        ];
     }
 
     /**
