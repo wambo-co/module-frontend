@@ -9,8 +9,6 @@ use Slim\Http\Response;
 use Slim\Views\PhpRenderer;
 use Wambo\Catalog\Model\Product;
 use Wambo\Catalog\ProductRepositoryInterface;
-use Wambo\Frontend\ViewModel\OverviewViewModel;
-use Wambo\Frontend\ViewModel\ProductViewModel;
 
 /**
  * Class CatalogController contains the frontend controller actions for browsing the product catalog.
@@ -55,7 +53,7 @@ class CatalogController
         $products = $this->productRepository->getProducts();
 
         $productModels = [];
-        foreach($products as $product) {
+        foreach ($products as $product) {
             $productModels[] = $this->getProductModel($product);
         }
 
@@ -92,11 +90,19 @@ class CatalogController
         ]);
     }
 
-    private function getProductModel(Product $product): array {
+    /**
+     * Get a product view model for the given product
+     *
+     * @param Product $product A product model
+     *
+     * @return array
+     */
+    private function getProductModel(Product $product): array
+    {
         return [
-            "sku" => $product->getSku(),
+            "sku" => $product->getSku()->__toString(),
             "title" => $product->getTitle(),
-            "slug" => $product->getSlug(),
+            "slug" => $product->getSlug()->__toString(),
             "summary" => $product->getSummaryText(),
             "description" => $product->getProductDescription(),
         ];

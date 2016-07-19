@@ -4,7 +4,7 @@ namespace Wambo\Frontend;
 
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
-use Slim\Views\PhpRenderer;
+use Slim\Views\Twig;
 use Wambo\Catalog\CachedProductRepository;
 use Wambo\Catalog\Mapper\ContentMapper;
 use Wambo\Catalog\Mapper\ProductMapper;
@@ -37,7 +37,7 @@ class Frontend implements ModuleBootstrapInterface
             $templatesDirectory = realpath(dirname(__FILE__) . '/../view');
             $cacheDirectory = realpath(WAMBO_ROOT_DIR . DIRECTORY_SEPARATOR . "var" . DIRECTORY_SEPARATOR . "cache");
 
-            $view = new \Slim\Views\Twig($templatesDirectory, [
+            $view = new Twig($templatesDirectory, [
                 'cache' => $cacheDirectory
             ]);
 

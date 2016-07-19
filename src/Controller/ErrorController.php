@@ -7,7 +7,6 @@ use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Views\PhpRenderer;
-use Wambo\Frontend\ViewModel\ErrorViewModel;
 
 /**
  * Class ErrorController container the frontend controller actions for HTTP errors
