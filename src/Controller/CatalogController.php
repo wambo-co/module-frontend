@@ -7,6 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Views\PhpRenderer;
+use Slim\Views\Twig;
 use Wambo\Catalog\Model\Product;
 use Wambo\Catalog\ProductRepositoryInterface;
 
@@ -20,7 +21,7 @@ class CatalogController
     /** @var ProductRepositoryInterface $productRepository */
     private $productRepository;
 
-    /** @var PhpRenderer $renderer */
+    /** @var Twig $renderer */
     private $renderer;
 
     /** @var ErrorController $errorController */
@@ -59,7 +60,7 @@ class CatalogController
 
         return $this->renderer->render($response, 'overview.html', [
             "title" => "Overview",
-            "products" => $products,
+            "products" => $productModels,
         ]);
     }
 
