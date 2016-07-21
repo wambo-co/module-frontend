@@ -17,11 +17,11 @@ use Stash\Pool;
 use Wambo\Frontend\Controller\ErrorController;
 
 /**
- * Class Frontend registers the frontend controller in the Wambo app.
+ * Class RouteRegistration registers the frontend controller in the Wambo app.
  *
  * @package Wambo\Frontend
  */
-class Frontend implements ModuleBootstrapInterface
+class RouteRegistration implements ModuleBootstrapInterface
 {
     /**
      * @param App $app

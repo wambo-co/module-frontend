@@ -15,6 +15,9 @@
       "role": "Developer"
     }
   ],
+  "extra": {
+    "class": "Wambo\\Frontend\\RouteRegistration"
+  },
   "autoload": {
     "psr-4": {
       "Wambo\\Frontend\\": "src"
