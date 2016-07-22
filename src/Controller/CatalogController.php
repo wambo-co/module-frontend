@@ -6,7 +6,6 @@ use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use Slim\Views\PhpRenderer;
 use Slim\Views\Twig;
 use Wambo\Catalog\Model\Product;
 use Wambo\Catalog\ProductRepositoryInterface;
