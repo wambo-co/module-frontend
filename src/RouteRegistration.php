@@ -2,12 +2,15 @@
 
 namespace Wambo\Frontend;
 
+use Interop\Container\ContainerInterface;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
+use Psr\Http\Message\RequestInterface;
 use Slim\Views\Twig;
 use Wambo\Catalog\CachedProductRepository;
 use Wambo\Catalog\Mapper\ContentMapper;
 use Wambo\Catalog\Mapper\ProductMapper;
+use Wambo\Catalog\Orchestrator\ProductDetailsOrchestrator;
 use Wambo\Catalog\ProductRepository;
 use Wambo\Catalog\ProductRepositoryInterface;
 use Wambo\Core\App;
@@ -32,7 +35,7 @@ class RouteRegistration implements ModuleBootstrapInterface
         $container = $app->getContainer();
 
         // register: renderer
-        $container['renderer'] = function ($c) {
+        $container['renderer'] = function (ContainerInterface $container) {
 
             $templatesDirectory = realpath(dirname(__FILE__) . '/../view');
             $cacheDirectory = realpath(WAMBO_ROOT_DIR . DIRECTORY_SEPARATOR . "var" . DIRECTORY_SEPARATOR . "cache");
@@ -42,14 +45,19 @@ class RouteRegistration implements ModuleBootstrapInterface
             ]);
 
             // Instantiate and add Slim specific extension
-            $basePath = rtrim(str_ireplace('index.php', '', $c['request']->getUri()->getBasePath()), '/');
-            $view->addExtension(new \Slim\Views\TwigExtension($c['router'], $basePath));
+            /** @var RequestInterface $request */
+            $request = $container['request'];
+            $basePath = rtrim(str_ireplace('index.php', '', $request->getUri()->getBasePath()), '/');
+            $view->addExtension(new \Slim\Views\TwigExtension($container['router'], $basePath));
 
             return $view;
         };
 
         // register: product repository
         $container["productRepository"] = $this->getProductRepository();
+
+        // register: product details view model orchestrator
+        $container["productDetailsOrchestrator"] = new ProductDetailsOrchestrator();
 
         // register: error controller
         $errorController = new ErrorController($container);

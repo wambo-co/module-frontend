@@ -8,6 +8,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Views\Twig;
 use Wambo\Catalog\Model\Product;
+use Wambo\Catalog\Orchestrator\ProductDetailsOrchestrator;
 use Wambo\Catalog\ProductRepositoryInterface;
 
 /**
@@ -26,6 +27,9 @@ class CatalogController
     /** @var ErrorController $errorController */
     private $errorController;
 
+    /** @var ProductDetailsOrchestrator */
+    private $productDetailsOrchestrator;
+
     /**
      * Creates a new instance of the CatalogController class.
      *
@@ -36,6 +40,7 @@ class CatalogController
         $this->productRepository = $container->get('productRepository');
         $this->renderer = $container->get('renderer');
         $this->errorController = $container->get('errorController');
+        $this->productDetailsOrchestrator = $container->get('productDetailsOrchestrator');
     }
 
     /**
@@ -84,10 +89,8 @@ class CatalogController
             return $this->errorController->error404($request, $response, $args);
         }
 
-        return $this->renderer->render($response, 'product.html', [
-            "title" => $product->getTitle(),
-            "product" => $this->getProductModel($product)
-        ]);
+        $viewModel = $this->productDetailsOrchestrator->getProductDetails($product);
+        return $this->renderer->render($response, 'product.html', $viewModel);
     }
 
     /**
