@@ -1,14 +1,15 @@
 <?php
 
-namespace Wambo\Catalog\Orchestrator;
+namespace Wambo\Frontend\Orchestrator;
 
+use Interop\Container\ContainerInterface;
 use Wambo\Catalog\Model\Product;
-use Wambo\Catalog\ViewModel\ProductDetails;
+use Wambo\Frontend\ViewModel\ProductDetails;
 
 /**
  * Class ProductDetailsOrchestrator creates ProductDetail view models from Product models.
  *
- * @package Wambo\Catalog\Orchestrator
+ * @package Wambo\Frontend\Orchestrator
  */
 class ProductDetailsOrchestrator
 {
@@ -19,16 +20,15 @@ class ProductDetailsOrchestrator
      *
      * @return ProductDetails
      */
-    public function getProductDetails(Product $productModel): ProductDetails
+    public function getProductDetailsModel(Product $productModel): ProductDetails
     {
-        $viewModel = new ProductDetails();
+        $productViewModel = new ProductDetails();
+        $productViewModel->sku = $productModel->getSku()->__toString();
+        $productViewModel->title = $productModel->getTitle();
+        $productViewModel->slug = $productModel->getSlug()->__toString();
+        $productViewModel->summary = $productModel->getSummaryText();
+        $productViewModel->description = $productModel->getProductDescription();
 
-        $viewModel->sku = $productModel->getSku()->__toString();
-        $viewModel->title = $productModel->getTitle();
-        $viewModel->slug = $productModel->getSlug()->__toString();
-        $viewModel->summary = $productModel->getSummaryText();
-        $viewModel->description = $productModel->getProductDescription();
-
-        return $viewModel;
+        return $productViewModel;
     }
 }

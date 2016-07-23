@@ -8,8 +8,9 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Views\Twig;
 use Wambo\Catalog\Model\Product;
-use Wambo\Catalog\Orchestrator\ProductDetailsOrchestrator;
 use Wambo\Catalog\ProductRepositoryInterface;
+use Wambo\Frontend\Orchestrator\PageOrchestrator;
+use Wambo\Frontend\Orchestrator\ProductDetailsOrchestrator;
 
 /**
  * Class CatalogController contains the frontend controller actions for browsing the product catalog.
@@ -27,6 +28,9 @@ class CatalogController
     /** @var ErrorController $errorController */
     private $errorController;
 
+    /** @var PageOrchestrator */
+    private $pageOrchestrator;
+
     /** @var ProductDetailsOrchestrator */
     private $productDetailsOrchestrator;
 
@@ -38,8 +42,11 @@ class CatalogController
     public function __construct(ContainerInterface $container)
     {
         $this->productRepository = $container->get('productRepository');
-        $this->renderer = $container->get('renderer');
         $this->errorController = $container->get('errorController');
+        $this->renderer = $container->get('renderer');
+
+        // orchestrators
+        $this->pageOrchestrator = $container->get('pageOrchestrator');
         $this->productDetailsOrchestrator = $container->get('productDetailsOrchestrator');
     }
 
@@ -89,7 +96,19 @@ class CatalogController
             return $this->errorController->error404($request, $response, $args);
         }
 
-        $viewModel = $this->productDetailsOrchestrator->getProductDetails($product);
+        $productViewModel = $this->productDetailsOrchestrator->getProductDetailsModel($product);
+
+        $pageViewModel = $this->pageOrchestrator->getPageModel(
+            $productViewModel->title,
+            $productViewModel->description,
+            $productViewModel->slug
+        );
+
+        $viewModel = [
+            "page" => $pageViewModel,
+            "product" => $productViewModel
+        ];
+
         return $this->renderer->render($response, 'product.html', $viewModel);
     }
 

@@ -10,7 +10,6 @@ use Slim\Views\Twig;
 use Wambo\Catalog\CachedProductRepository;
 use Wambo\Catalog\Mapper\ContentMapper;
 use Wambo\Catalog\Mapper\ProductMapper;
-use Wambo\Catalog\Orchestrator\ProductDetailsOrchestrator;
 use Wambo\Catalog\ProductRepository;
 use Wambo\Catalog\ProductRepositoryInterface;
 use Wambo\Core\App;
@@ -18,13 +17,15 @@ use Wambo\Core\Module\JSONModuleStorage;
 use Wambo\Core\Module\ModuleBootstrapInterface;
 use Stash\Pool;
 use Wambo\Frontend\Controller\ErrorController;
+use Wambo\Frontend\Orchestrator\PageOrchestrator;
+use Wambo\Frontend\Orchestrator\ProductDetailsOrchestrator;
 
 /**
- * Class RouteRegistration registers the frontend controller in the Wambo app.
+ * Class Registration registers the frontend module in the Wambo app.
  *
  * @package Wambo\Frontend
  */
-class RouteRegistration implements ModuleBootstrapInterface
+class Registration implements ModuleBootstrapInterface
 {
     /**
      * @param App $app
@@ -55,6 +56,9 @@ class RouteRegistration implements ModuleBootstrapInterface
 
         // register: product repository
         $container["productRepository"] = $this->getProductRepository();
+
+        // register: page view model orchestrator
+        $container["pageOrchestrator"] = new PageOrchestrator();
 
         // register: product details view model orchestrator
         $container["productDetailsOrchestrator"] = new ProductDetailsOrchestrator();

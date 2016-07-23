@@ -16,7 +16,7 @@
     }
   ],
   "extra": {
-    "class": "Wambo\\Frontend\\RouteRegistration"
+    "class": "Wambo\\Frontend\\Registration"
   },
   "autoload": {
     "psr-4": {

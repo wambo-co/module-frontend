@@ -1,7 +1,12 @@
 <?php
 
-namespace Wambo\Catalog\ViewModel;
+namespace Wambo\Frontend\ViewModel;
 
+/**
+ * Class ProductDetails is a view model for a product details page
+ *
+ * @package Wambo\Frontend\ViewModel
+ */
 class ProductDetails
 {
     public $sku;
