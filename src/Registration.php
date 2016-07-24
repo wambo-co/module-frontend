@@ -6,7 +6,10 @@ use Interop\Container\ContainerInterface;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use Psr\Http\Message\RequestInterface;
+use Slim\Http\Request;
+use Slim\Http\Response;
 use Slim\Views\Twig;
+use Slim\Views\TwigExtension;
 use Wambo\Catalog\CachedProductRepository;
 use Wambo\Catalog\Mapper\ContentMapper;
 use Wambo\Catalog\Mapper\ProductMapper;
@@ -19,6 +22,7 @@ use Stash\Pool;
 use Wambo\Frontend\Controller\ErrorController;
 use Wambo\Frontend\Orchestrator\PageOrchestrator;
 use Wambo\Frontend\Orchestrator\ProductDetailsOrchestrator;
+use Wambo\Frontend\Orchestrator\ProductOverviewOrchestrator;
 
 /**
  * Class Registration registers the frontend module in the Wambo app.
@@ -49,7 +53,7 @@ class Registration implements ModuleBootstrapInterface
             /** @var RequestInterface $request */
             $request = $container['request'];
             $basePath = rtrim(str_ireplace('index.php', '', $request->getUri()->getBasePath()), '/');
-            $view->addExtension(new \Slim\Views\TwigExtension($container['router'], $basePath));
+            $view->addExtension(new TwigExtension($container['router'], $basePath));
 
             return $view;
         };
@@ -61,13 +65,16 @@ class Registration implements ModuleBootstrapInterface
         $container["pageOrchestrator"] = new PageOrchestrator();
 
         // register: product details view model orchestrator
-        $container["productDetailsOrchestrator"] = new ProductDetailsOrchestrator();
+        $container["productDetailsOrchestrator"] = new ProductDetailsOrchestrator($container);
+
+        // register: product overview view model orchestrator
+        $container["productOverviewOrchestrator"] = new ProductOverviewOrchestrator($container);
 
         // register: error controller
         $errorController = new ErrorController($container);
         $container['errorController'] = $errorController;
         $container['notFoundHandler'] = function () use ($errorController) {
-            return function ($request, $response, $args) use ($errorController) {
+            return function (Request $request, Response $response, $args = []) use ($errorController) {
                 return $errorController->error404($request, $response, $args);
             };
         };

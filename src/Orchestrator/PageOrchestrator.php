@@ -4,6 +4,11 @@ namespace Wambo\Frontend\Orchestrator;
 
 use Wambo\Frontend\ViewModel\Page;
 
+/**
+ * Class PageOrchestrator provides generic page view models.
+ *
+ * @package Wambo\Frontend\Orchestrator
+ */
 class PageOrchestrator
 {
     /**
@@ -15,7 +20,7 @@ class PageOrchestrator
      *
      * @return Page
      */
-    public function getPageModel(string $title, string $description, string $slug): Page
+    public function getPageModel(string $title, string $description = "", string $slug = ""): Page
     {
         $pageViewModel = new Page();
         $pageViewModel->title = $title;

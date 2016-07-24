@@ -7,6 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Views\PhpRenderer;
+use Wambo\Frontend\Orchestrator\PageOrchestrator;
 
 /**
  * Class ErrorController container the frontend controller actions for HTTP errors
@@ -18,6 +19,9 @@ class ErrorController
     /** @var PhpRenderer $renderer */
     private $renderer;
 
+    /** @var PageOrchestrator */
+    private $pageOrchestrator;
+
     /**
      * Creates a new instance of the ErrorController class.
      *
@@ -25,6 +29,7 @@ class ErrorController
      */
     public function __construct(ContainerInterface $container)
     {
+        $this->pageOrchestrator = $container->get('pageOrchestrator');
         $this->renderer = $container->get('renderer');
     }
 
@@ -37,10 +42,14 @@ class ErrorController
      *
      * @return ResponseInterface
      */
-    public function error404(Request $request, Response $response, $args)
+    public function error404(Request $request, Response $response, array $args)
     {
-        return $this->renderer->render($response->withStatus(404), 'error.html', [
-            "title" => "Page not found"
-        ]);
+        $pageViewModel = $this->pageOrchestrator->getPageModel("Page not found");
+
+        $viewModel = [
+            "page" => $pageViewModel
+        ];
+
+        return $this->renderer->render($response->withStatus(404), 'error.html', $viewModel);
     }
 }

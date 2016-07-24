@@ -9,5 +9,12 @@ namespace Wambo\Frontend\ViewModel;
  */
 class Page
 {
+    /** @var string $title The page title */
+    public $title;
 
+    /** @var string $description The page description */
+    public $description;
+
+    /** @var string $url The (canonical) page URL */
+    public $url;
 }
