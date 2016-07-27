@@ -1,0 +1,20 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ page.title }}</title>
+    <meta name="description" content="{{ page.description }}">
+    <link rel="canonical" href="{{ page.url }}">
+
+    {% block head %}
+    {% endblock %}
+
+</head>
+<body>
+    <div id="content">
+        
+        {% block content %}
+        {% endblock %}
+
+    </div>
+</body>
+</html>
