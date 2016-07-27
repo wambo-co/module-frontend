@@ -2,11 +2,10 @@
 
 namespace Wambo\Frontend\Controller;
 
-use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use Slim\Views\PhpRenderer;
+use Slim\Views\Twig;
 use Wambo\Frontend\Orchestrator\PageOrchestrator;
 
 /**
@@ -16,7 +15,7 @@ use Wambo\Frontend\Orchestrator\PageOrchestrator;
  */
 class ErrorController
 {
-    /** @var PhpRenderer $renderer */
+    /** @var Twig $renderer */
     private $renderer;
 
     /** @var PageOrchestrator */
@@ -25,12 +24,13 @@ class ErrorController
     /**
      * Creates a new instance of the ErrorController class.
      *
-     * @param ContainerInterface $container The slim di container
+     * @param PageOrchestrator $pageOrchestrator
+     * @param Twig             $renderer
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(PageOrchestrator $pageOrchestrator, Twig $renderer)
     {
-        $this->pageOrchestrator = $container->get('pageOrchestrator');
-        $this->renderer = $container->get('renderer');
+        $this->pageOrchestrator = $pageOrchestrator;
+        $this->renderer = $renderer;
     }
 
     /**
@@ -38,11 +38,10 @@ class ErrorController
      *
      * @param Request  $request  The request object
      * @param Response $response The response object
-     * @param array    $args     The request arguments
      *
      * @return ResponseInterface
      */
-    public function error404(Request $request, Response $response, array $args)
+    public function error404(Request $request, Response $response)
     {
         $pageViewModel = $this->pageOrchestrator->getPageModel("Page not found");
 

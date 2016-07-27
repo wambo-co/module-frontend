@@ -2,7 +2,6 @@
 
 namespace Wambo\Frontend\Controller;
 
-use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -37,29 +36,36 @@ class CatalogController
     /**
      * Creates a new instance of the CatalogController class.
      *
-     * @param ContainerInterface $container The slim di container
+     * @param ErrorController             $errorController
+     * @param Twig                        $renderer
+     * @param PageOrchestrator            $pageOrchestrator
+     * @param ProductOverviewOrchestrator $productOverviewOrchestrator
+     * @param ProductDetailsOrchestrator  $productDetailsOrchestrator
      */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->errorController = $container->get('errorController');
-        $this->renderer = $container->get('renderer');
+    public function __construct(
+        ErrorController $errorController,
+        Twig $renderer,
+        PageOrchestrator $pageOrchestrator,
+        ProductOverviewOrchestrator $productOverviewOrchestrator,
+        ProductDetailsOrchestrator $productDetailsOrchestrator
+    ) {
+        $this->errorController = $errorController;
+        $this->renderer = $renderer;
 
         // view model orchestrators
-        $this->pageOrchestrator = $container->get('pageOrchestrator');
-        $this->productOverviewOrchestrator = $container->get('productOverviewOrchestrator');
-        $this->productDetailsOrchestrator = $container->get('productDetailsOrchestrator');
+        $this->pageOrchestrator = $pageOrchestrator;
+        $this->productOverviewOrchestrator = $productOverviewOrchestrator;
+        $this->productDetailsOrchestrator = $productDetailsOrchestrator;
     }
 
     /**
      * Render the catalog overview pages with all products on one page
      *
-     * @param Request  $request  The request object
      * @param Response $response The response object
-     * @param array    $args     The request arguments
      *
      * @return ResponseInterface
      */
-    public function overview(Request $request, Response $response, array $args)
+    public function overview(Response $response)
     {
         $pageViewModel = $this->pageOrchestrator->getPageModel("Overview");
         $overviewViewModel = $this->productOverviewOrchestrator->getProductOverviewModel();
@@ -73,17 +79,14 @@ class CatalogController
     /**
      * Render the product details page.
      *
-     * @param Request  $request  The request object
+     * @param string   $slug
+     * @param Request  $request
      * @param Response $response The response object
-     * @param array    $args     The request arguments
      *
      * @return ResponseInterface
      */
-    public function productDetails(Request $request, Response $response, array $args)
+    public function productDetails(string $slug, Request $request, Response $response)
     {
-        /** @var string $slug */
-        $slug = $request->getAttribute('slug');
-
         try {
             $productViewModel = $this->productDetailsOrchestrator->getProductDetailsModel($slug);
 
@@ -101,7 +104,7 @@ class CatalogController
             return $this->renderer->render($response, 'product.html', $viewModel);
 
         } catch (ProductNotFoundException $productNotFoundException) {
-            return $this->errorController->error404($request, $response, $args);
+            return $this->errorController->error404($request, $response);
         }
     }
 }

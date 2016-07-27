@@ -2,7 +2,6 @@
 
 namespace Wambo\Frontend\Orchestrator;
 
-use Interop\Container\ContainerInterface;
 use Wambo\Catalog\Model\Product;
 use Wambo\Catalog\ProductRepositoryInterface;
 use Wambo\Frontend\Exception\ProductNotFoundException;
@@ -21,11 +20,11 @@ class ProductDetailsOrchestrator
     /**
      * Creates a new instance of the ProductDetailsOrchestrator class.
      *
-     * @param ContainerInterface $container The slim di container
+     * @param ProductRepositoryInterface $productRepository
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ProductRepositoryInterface $productRepository)
     {
-        $this->productRepository = $container->get('productRepository');
+        $this->productRepository = $productRepository;
     }
 
     /**

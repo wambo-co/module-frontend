@@ -19,10 +19,8 @@ use Wambo\Core\App;
 use Wambo\Core\Module\JSONModuleStorage;
 use Wambo\Core\Module\ModuleBootstrapInterface;
 use Stash\Pool;
+use Wambo\Frontend\Controller\CatalogController;
 use Wambo\Frontend\Controller\ErrorController;
-use Wambo\Frontend\Orchestrator\PageOrchestrator;
-use Wambo\Frontend\Orchestrator\ProductDetailsOrchestrator;
-use Wambo\Frontend\Orchestrator\ProductOverviewOrchestrator;
 
 /**
  * Class Registration registers the frontend module in the Wambo app.
@@ -32,15 +30,42 @@ use Wambo\Frontend\Orchestrator\ProductOverviewOrchestrator;
 class Registration implements ModuleBootstrapInterface
 {
     /**
+     * Register the Frontend module.
+     *
      * @param App $app
      */
     public function __construct(App $app)
     {
-        // Get container
+        $this->configureDI($app);
+        $this->registerRoutes($app);
+    }
+
+    /**
+     * Register routes in the slim app.
+     *
+     * @param App $app
+     */
+    private function registerRoutes(App $app)
+    {
+        // overview
+        $app->get('/', ['CatalogController', 'overview']);
+
+        // product details
+        $app->get('/product/{slug}', ['CatalogController', 'productDetails']);
+    }
+
+    /**
+     * Configure the dependency injection container
+     *
+     * @param App $app
+     */
+    private function configureDI(App $app)
+    {
+        /** @var \DI\Container $container */
         $container = $app->getContainer();
 
         // register: renderer
-        $container['renderer'] = function (ContainerInterface $container) {
+        $container->set(Twig::class, function (ContainerInterface $container) {
 
             $templatesDirectory = realpath(dirname(__FILE__) . '/../view');
             $cacheDirectory = realpath(WAMBO_ROOT_DIR . DIRECTORY_SEPARATOR . "var" . DIRECTORY_SEPARATOR . "cache");
@@ -51,39 +76,26 @@ class Registration implements ModuleBootstrapInterface
 
             // Instantiate and add Slim specific extension
             /** @var RequestInterface $request */
-            $request = $container['request'];
+            $request = $container->get('request');
             $basePath = rtrim(str_ireplace('index.php', '', $request->getUri()->getBasePath()), '/');
-            $view->addExtension(new TwigExtension($container['router'], $basePath));
+            $view->addExtension(new TwigExtension($container->get('router'), $basePath));
 
             return $view;
-        };
+        });
 
         // register: product repository
-        $container["productRepository"] = $this->getProductRepository();
-
-        // register: page view model orchestrator
-        $container["pageOrchestrator"] = new PageOrchestrator();
-
-        // register: product details view model orchestrator
-        $container["productDetailsOrchestrator"] = new ProductDetailsOrchestrator($container);
-
-        // register: product overview view model orchestrator
-        $container["productOverviewOrchestrator"] = new ProductOverviewOrchestrator($container);
+        $container->set(ProductRepositoryInterface::class, $this->getProductRepository());
 
         // register: error controller
-        $errorController = new ErrorController($container);
-        $container['errorController'] = $errorController;
-        $container['notFoundHandler'] = function () use ($errorController) {
-            return function (Request $request, Response $response, $args = []) use ($errorController) {
-                return $errorController->error404($request, $response, $args);
+        $container->set('CatalogController', \DI\object(CatalogController::class));
+        $container->set('errorController', \DI\object(ErrorController::class));
+        $container->set('notFoundHandler', function (ContainerInterface $container) {
+            return function (Request $request, Response $response) use ($container) {
+                /** @var ErrorController $errorController */
+                $errorController = $container->get("errorController");
+                return $errorController->error404($request, $response);
             };
-        };
-
-        // overview
-        $app->get('/', 'Wambo\Frontend\Controller\CatalogController:overview');
-
-        // product details
-        $app->get('/product/{slug}', 'Wambo\Frontend\Controller\CatalogController:productDetails');
+        });
     }
 
     /**

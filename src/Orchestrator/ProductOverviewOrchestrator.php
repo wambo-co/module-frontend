@@ -2,7 +2,6 @@
 
 namespace Wambo\Frontend\Orchestrator;
 
-use Interop\Container\ContainerInterface;
 use Wambo\Catalog\ProductRepositoryInterface;
 use Wambo\Frontend\ViewModel\ProductOverview;
 
@@ -22,12 +21,15 @@ class ProductOverviewOrchestrator
     /**
      * Creates a new instance of the ProductOverviewOrchestrator class.
      *
-     * @param ContainerInterface $container The slim di container
+     * @param ProductRepositoryInterface $productRepository
+     * @param ProductDetailsOrchestrator $productDetailsOrchestrator
      */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->productRepository = $container->get('productRepository');
-        $this->productDetailsOrchestrator = $container->get('productDetailsOrchestrator');
+    public function __construct(
+        ProductRepositoryInterface $productRepository,
+        ProductDetailsOrchestrator $productDetailsOrchestrator
+    ) {
+        $this->productRepository = $productRepository;
+        $this->productDetailsOrchestrator = $productDetailsOrchestrator;
     }
 
     /**
