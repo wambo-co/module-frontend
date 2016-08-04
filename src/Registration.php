@@ -83,9 +83,6 @@ class Registration implements ModuleBootstrapInterface
             return $view;
         });
 
-        // register: product repository
-        $container->set(ProductRepositoryInterface::class, $this->getProductRepository());
-
         // register: error controller
         $container->set('CatalogController', \DI\object(CatalogController::class));
         $container->set('errorController', \DI\object(ErrorController::class));
@@ -96,33 +93,5 @@ class Registration implements ModuleBootstrapInterface
                 return $errorController->error404($request, $response);
             };
         });
-    }
-
-    /**
-     * Get a product repository instance
-     *
-     * @return ProductRepositoryInterface
-     */
-    private function getProductRepository()
-    {
-        // catalog storage
-        $sampleCatalogFilename = "sample-catalog.json";
-        $testResourceFolderPath = realpath(WAMBO_ROOT_DIR . "/vendor/wambo/module-catalog/examples/" . '/catalog');
-
-        $localFilesystemAdapter = new Local($testResourceFolderPath);
-        $filesystem = new Filesystem($localFilesystemAdapter);
-        $storage = new JSONModuleStorage($filesystem, $sampleCatalogFilename);
-
-        // product mapper
-        $contentMapper = new ContentMapper();
-        $productMapper = new ProductMapper($contentMapper);
-
-        // create the product repository
-        $productRepository = new ProductRepository($storage, $productMapper);
-
-        // create a cached version of the product repository
-        $cache = new Pool();
-        $cachedProductRepository = new CachedProductRepository($cache, $productRepository);
-        return $cachedProductRepository;
     }
 }
