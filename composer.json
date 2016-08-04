@@ -24,7 +24,7 @@
     }
   },
   "require": {
-    "wambo/module-catalog": "dev-develop",
+    "wambo/module-catalog": "dev-feature/cart",
     "slim/twig-view": "^2.1"
   },
   "require-dev": {
