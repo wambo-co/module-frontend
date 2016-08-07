@@ -3,24 +3,17 @@
 namespace Wambo\Frontend;
 
 use Interop\Container\ContainerInterface;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
-use Psr\Http\Message\RequestInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Slim\Http\Uri;
 use Slim\Views\Twig;
 use Slim\Views\TwigExtension;
-use Wambo\Catalog\CachedProductRepository;
-use Wambo\Catalog\Mapper\ContentMapper;
-use Wambo\Catalog\Mapper\ProductMapper;
-use Wambo\Catalog\ProductRepository;
-use Wambo\Catalog\ProductRepositoryInterface;
 use Wambo\Core\App;
-use Wambo\Core\Module\JSONModuleStorage;
 use Wambo\Core\Module\ModuleBootstrapInterface;
-use Stash\Pool;
 use Wambo\Frontend\Controller\CatalogController;
 use Wambo\Frontend\Controller\ErrorController;
+use Wambo\Frontend\Service\URL\GenericURLProvider;
+use Wambo\Frontend\Service\URL\ProductURLProvider;
 
 /**
  * Class Registration registers the frontend module in the Wambo app.
@@ -48,10 +41,14 @@ class Registration implements ModuleBootstrapInterface
     private function registerRoutes(App $app)
     {
         // overview
-        $app->get('/', ['CatalogController', 'overview']);
+        /** @var \Wambo\Frontend\Service\URL\GenericURLProvider $genericURLProvider */
+        $genericURLProvider = $app->getContainer()->get(GenericURLProvider::class);
+        $app->get($genericURLProvider->getUrlPattern(), ['CatalogController', 'overview']);
 
         // product details
-        $app->get('/product/{slug}', ['CatalogController', 'productDetails']);
+        /** @var \Wambo\Frontend\Service\URL\ProductURLProvider $productURLProvider */
+        $productURLProvider = $app->getContainer()->get(ProductURLProvider::class);
+        $app->get($productURLProvider->getUrlPattern(), ['CatalogController', 'productDetails']);
     }
 
     /**
@@ -75,9 +72,14 @@ class Registration implements ModuleBootstrapInterface
             ]);
 
             // Instantiate and add Slim specific extension
-            /** @var RequestInterface $request */
+            /** @var Request $request */
             $request = $container->get('request');
-            $basePath = rtrim(str_ireplace('index.php', '', $request->getUri()->getBasePath()), '/');
+
+            /** @var Uri $requestUri */
+            $requestUri = $request->getUri();
+
+            $basePath = rtrim(str_ireplace('index.php', '', $requestUri->getBasePath()), '/');
+
             $view->addExtension(new TwigExtension($container->get('router'), $basePath));
 
             return $view;

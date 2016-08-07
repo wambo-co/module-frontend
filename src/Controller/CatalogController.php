@@ -67,7 +67,11 @@ class CatalogController
      */
     public function overview(Response $response)
     {
-        $pageViewModel = $this->pageOrchestrator->getPageModel("Overview");
+        $pageViewModel = $this->pageOrchestrator->getPageModel(
+            "Overview",
+            "Product overview"
+        );
+
         $overviewViewModel = $this->productOverviewOrchestrator->getProductOverviewModel();
 
         return $this->renderer->render($response, 'overview.html', [
@@ -93,7 +97,7 @@ class CatalogController
             $pageViewModel = $this->pageOrchestrator->getPageModel(
                 $productViewModel->title,
                 $productViewModel->description,
-                $productViewModel->slug
+                $productViewModel->uri
             );
 
             $viewModel = [

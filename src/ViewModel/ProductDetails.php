@@ -12,8 +12,8 @@ class ProductDetails
     /** @var string $sku The product SKU */
     public $sku;
 
-    /** @var string $slug */
-    public $slug;
+    /** @var string $uri */
+    public $uri;
 
     /** @var string $title The product title */
     public $title;

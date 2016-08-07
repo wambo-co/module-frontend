@@ -6,7 +6,7 @@
 <!-- Products -->
 {% for product in overview.products %}
 <div class="product">
-    <header><h2><a href="/product/{{ product.slug }}">{{ product.title }}</a></h2></header>
+    <header><h2><a href="{{ product.uri }}">{{ product.title }}</a></h2></header>
     <section title="summary">{{ product.summary }}</section>
     <section title="description">{{ product.description }}</section>
 </div>

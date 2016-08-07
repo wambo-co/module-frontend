@@ -5,6 +5,7 @@ namespace Wambo\Frontend\Orchestrator;
 use Wambo\Catalog\Model\Product;
 use Wambo\Catalog\ProductRepositoryInterface;
 use Wambo\Frontend\Exception\ProductNotFoundException;
+use Wambo\Frontend\Service\URL\ProductURLProvider;
 use Wambo\Frontend\ViewModel\ProductDetails;
 
 /**
@@ -16,15 +17,21 @@ class ProductDetailsOrchestrator
 {
     /** @var ProductRepositoryInterface */
     private $productRepository;
+    /**
+     * @var \Wambo\Frontend\Service\URL\ProductURLProvider
+     */
+    private $productURLProvider;
 
     /**
      * Creates a new instance of the ProductDetailsOrchestrator class.
      *
-     * @param ProductRepositoryInterface $productRepository
+     * @param ProductRepositoryInterface                     $productRepository
+     * @param \Wambo\Frontend\Service\URL\ProductURLProvider $productURLProvider
      */
-    public function __construct(ProductRepositoryInterface $productRepository)
+    public function __construct(ProductRepositoryInterface $productRepository, ProductURLProvider $productURLProvider)
     {
         $this->productRepository = $productRepository;
+        $this->productURLProvider = $productURLProvider;
     }
 
     /**
@@ -46,7 +53,7 @@ class ProductDetailsOrchestrator
         $productViewModel = new ProductDetails();
         $productViewModel->sku = $product->getSku()->__toString();
         $productViewModel->title = $product->getTitle();
-        $productViewModel->slug = $product->getSlug()->__toString();
+        $productViewModel->uri = $this->productURLProvider->getUrl($product->getSlug());
         $productViewModel->summary = $product->getSummaryText();
         $productViewModel->description = $product->getProductDescription();
 
