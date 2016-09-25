@@ -74,7 +74,7 @@ class CatalogController
 
         $overviewViewModel = $this->productOverviewOrchestrator->getProductOverviewModel();
 
-        return $this->renderer->render($response, 'overview.html', [
+        return $this->renderer->render($response, 'overview.twig', [
             "page" => $pageViewModel,
             "overview" => $overviewViewModel,
         ]);
@@ -105,7 +105,7 @@ class CatalogController
                 "product" => $productViewModel
             ];
 
-            return $this->renderer->render($response, 'product.html', $viewModel);
+            return $this->renderer->render($response, 'product.twig', $viewModel);
 
         } catch (ProductNotFoundException $productNotFoundException) {
             return $this->errorController->error404($request, $response);

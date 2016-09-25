@@ -10,6 +10,7 @@ use Slim\Views\Twig;
 use Slim\Views\TwigExtension;
 use Wambo\Core\App;
 use Wambo\Core\Module\ModuleBootstrapInterface;
+use Wambo\Frontend\Controller\CartController;
 use Wambo\Frontend\Controller\CatalogController;
 use Wambo\Frontend\Controller\ErrorController;
 use Wambo\Frontend\Service\URL\GenericURLProvider;
@@ -49,6 +50,11 @@ class Registration implements ModuleBootstrapInterface
         /** @var \Wambo\Frontend\Service\URL\ProductURLProvider $productURLProvider */
         $productURLProvider = $app->getContainer()->get(ProductURLProvider::class);
         $app->get($productURLProvider->getUrlPattern(), ['CatalogController', 'productDetails']);
+
+        // cart
+        $app->get('/cart', ['CartController', 'index']);
+        $app->post('/cart', ['CartController', 'index']);
+
     }
 
     /**
@@ -87,6 +93,7 @@ class Registration implements ModuleBootstrapInterface
 
         // register: error controller
         $container->set('CatalogController', \DI\object(CatalogController::class));
+        $container->set('CartController', \Di\object(CartController::class));
         $container->set('errorController', \DI\object(ErrorController::class));
         $container->set('notFoundHandler', function (ContainerInterface $container) {
             return function (Request $request, Response $response) use ($container) {

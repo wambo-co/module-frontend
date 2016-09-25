@@ -1,0 +1,42 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ page.title }}</title>
+    <meta name="description" content="{{ page.description }}">
+    <link rel="canonical" href="{{ page.url }}">
+
+    {% block head %}
+    {% endblock %}
+
+</head>
+<body>
+
+    <div>
+        <a href="/cart"><strong>MiniCart</strong></a>
+        <div id="minicart"></div>
+    </div>
+
+
+    <div id="content">
+        
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
+            integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc="
+            crossorigin="anonymous">
+    </script>
+    <script type="application/javascript" src="/js/wambo.js"></script>
+    <script type="application/javascript">
+        var cart = new Cart();
+        cart.init();
+
+        var minicart = new MiniCart("#minicart");
+        minicart.update(cart);
+    </script>
+    {% block javascript %}
+    {% endblock %}
+</body>
+</html>

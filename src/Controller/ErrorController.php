@@ -49,6 +49,6 @@ class ErrorController
             "page" => $pageViewModel
         ];
 
-        return $this->renderer->render($response->withStatus(404), 'error.html', $viewModel);
+        return $this->renderer->render($response->withStatus(404), 'error.twig', $viewModel);
     }
 }

@@ -1,0 +1,39 @@
+{% extends "base.twig" %}
+
+{% block content %}
+
+<!-- Product -->
+<div class="product">
+    <header><h2><a href="/product/{{ product.slug }}">{{ product.title }}</a></h2></header>
+    <section title="summary">{{ product.summary }}</section>
+    <section title="description">{{ product.description }}</section>
+
+    <form action="/cart" method="post" id="addToCart">
+        <input type="hidden" name="sku" value="{{ product.sku }}">
+        <fieldset>
+            Qty: <input type="text" name="qty" value="1" /><br />
+            <input type="submit" value="add to cart" />
+        </fieldset>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $( "#addToCart" ).submit(function( event ) {
+            var unindexed_array =  $(this).serializeArray();
+            var json = {};
+
+            $.map(unindexed_array, function(n, i){
+                json[n['name']] = n['value'];
+            });
+
+            var cartItem = new CartItem( json.sku, json.qty);
+            cart.add(cartItem);
+            minicart.update(cart);
+
+            event.preventDefault();
+        });
+    </script>
+{% endblock %}
